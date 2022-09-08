@@ -1,1 +1,2 @@
-Find Contributor (on only react 😅)
+# Find Contributor (on only react 😅)
+This is Chrome Extension (link: https://chrome )

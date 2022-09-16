@@ -145,7 +145,7 @@ if(typeof window !== "undefined") {
     }
 
     const showTargetWithTooltip = () => {
-      if(!isOpen && isCtrlPress) return;
+      if(!isOpen || isCtrlPress) return;
       dom.classList.add("FCB-Active");
       overlay.style.display = "flex";
 

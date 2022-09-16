@@ -67,7 +67,7 @@ module.exports = function addComponentNameAndMap(source) {
         source.match(/(?<=export default class )[a-zA-Z0-9_]+/gi) ?? 
         source.match(/(?<=export default )[a-zA-Z0-9_]+/gi);
 
-    source = source + readFileSync(require.resolve("./layout.js")).toString();
+    source = source + "\n" + readFileSync(require.resolve("./layout.js")).toString();
 
     if (!componentName) return source;
     return source + `

@@ -63,10 +63,41 @@ if(typeof window !== "undefined") {
         font-size: 9px;
         word-break: break-all;
       }
+
+      .FCB-Bar {
+        width: 100%;
+        height: 5px;
+        background: rgb(240, 240, 240);
+        border-radius: 3px;
+        margin: 4px;
+        overflow: hidden;
+      }
+
+      @keyframes initialAnimation {
+        from {
+          width: 0%;
+        }
+        to {
+          width: var(--percent);
+        }
+      }
+
+      .FCB-Fill {
+        --percent: 0%;
+        width: 0%;
+        border-radius: 3px;
+        height: 100%;
+        animation-name: initialAnimation;
+        animation-duration: var(--duration);
+        animaiton-delay: var(--delay);
+        animation-timing-function: ease-out;
+        animation-fill-mode: forwards;
+      }
     `;
 
     let isOpen = false;
     let isCtrlPress = false;
+    let prevComponentIdentifier = null;
     const position = { x: 0, y: 0 };
     const dom = document.createElement("div");
     dom.setAttribute("id", "FCB-Popup-Wrapper");
@@ -91,9 +122,17 @@ if(typeof window !== "undefined") {
         return prev + score;
       }, 0);
 
-      Object.entries(map).forEach(([key, { score }]) => {
-        map[key].percent = Math.round((score / total) * 100);
-      });
+      const entriesMap = Object.entries(map)
+      const totalPercent = entriesMap.reduce((prev, [key, { score }]) => {
+        const percent = Math.round((score / total) * 100);
+        map[key].percent = percent;
+        return prev + percent;
+      }, 0);
+
+      if(totalPercent > 100 || totalPercent < 100) {
+        const maxLog = Object.entries(map).sort((a, b) => b[1].percent - a[1].percent)[0];
+        map[maxLog[0]].percent = maxLog[1].percent + (totalPercent > 100 ? -1 : 1);
+      }
 
       return map;
     }
@@ -106,7 +145,7 @@ if(typeof window !== "undefined") {
     }
 
     const showTargetWithTooltip = () => {
-      if(!isOpen) return;
+      if(!isOpen && isCtrlPress) return;
       dom.classList.add("FCB-Active");
       overlay.style.display = "flex";
 
@@ -132,7 +171,12 @@ if(typeof window !== "undefined") {
 
       const fiberInfo = getInfo(fiber._debugOwner);
       let gitLogs = fiberInfo?.contInfo;
+
       if(!gitLogs) return;
+      if(fiberInfo?.identifier === prevComponentIdentifier) return;
+      else prevComponentIdentifier = fiberInfo?.identifier;
+      if(!prevComponentIdentifier) return;
+
       gitLogs = Object.fromEntries(
         Object.entries(gitLogs).filter(([_, log]) => {
           if(log[0] || log[1] || log[2]) return true;
@@ -150,6 +194,9 @@ if(typeof window !== "undefined") {
                 <div class="FCB-Flex FCB-Line">
                   <span>${name}</span>
                   <span>${info[name].percent}%</span>
+                </div>
+                <div class="FCB-Bar">
+                  <div style="background: rgb(${log[0] * 56 % 256}, ${log[1] % 256}, ${log[2] % 256}); --percent: ${info[name].percent}%; --duration: ${.2 + info[name].percent / 1000}s; --delay: ${info[name].percent / 900}s;" class="FCB-Fill"></div>
                 </div>
                 <div class="FCB-Flex FCB-Line">
                   <span class="FCB-Small">${log[0]} file changes</span>
@@ -175,13 +222,13 @@ if(typeof window !== "undefined") {
         if(!isOpen) hideTooltip();
         else showTargetWithTooltip();
       }
-      if(e.keyCode === 17) {
+      if(e.keyCode === 16) {
         isCtrlPress = true;
       }
     });
 
     window.addEventListener("keyup", e => {
-      if(e.keyCode === 17) {
+      if(e.keyCode === 16) {
         isCtrlPress = false;
       }
     });
@@ -190,13 +237,6 @@ if(typeof window !== "undefined") {
       position.x = e.clientX;
       position.y = e.clientY;
       showTargetWithTooltip();
-    });
-
-    dom.addEventListener("mousemove", e => {
-      if(isCtrlPress) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
     });
   });
 };

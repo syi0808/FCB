@@ -3,7 +3,7 @@
 ### How to use
 Alt + Space or Option + Space = toggle tooltip
 #### When turn on tooltip
-You can scroll through the tooltip while the Ctrl key is pressed.
+You can scroll through the tooltip while the Shift key is pressed.
 
 ### Get Setup
 ```shell

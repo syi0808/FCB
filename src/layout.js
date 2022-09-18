@@ -145,7 +145,7 @@ if(typeof window !== "undefined") {
     }
 
     const showTargetWithTooltip = () => {
-      if(!isOpen || isCtrlPress) return;
+      if(!isOpen) return;
       dom.classList.add("FCB-Active");
       overlay.style.display = "flex";
 
@@ -234,6 +234,7 @@ if(typeof window !== "undefined") {
     });
 
     window.addEventListener("mousemove", e => {
+      if(isCtrlPress) return;
       position.x = e.clientX;
       position.y = e.clientY;
       showTargetWithTooltip();

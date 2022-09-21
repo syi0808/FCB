@@ -22,26 +22,26 @@ const getGitInfo = path => {
     for(let i = 0; i < lines.length; i++) {
         const line = lines[i];
         if(line === "") break;
-        let [author, date, fileChanges] = line.split("^");
+        let [author, date, fileChanges] = line?.split("^");
         if(author.includes("Merge")) {
             author = date;
             date = fileChanges;
             fileChanges = [];
         } else {
-            author = author.split(": ")[1].split(" <")[0];
-            date = new Date(date.split("Date:   ")[1]);
+            author = author?.split(": ")?.[1]?.split(" <")?.[0];
+            date = new Date(date?.split("Date:   ")?.[1]);
         }
         if(typeof fileChanges !== "string" || fileChanges.match(/Merge branch/)) fileChanges = [0, 0, 0];
         else {
           const segments = fileChanges.split(", ");
           fileChanges = new Uint32Array(3).fill(0);
           segments.forEach(segment => {
-            const segmentNumber = segment.match(/file changed/) ? [0, segment.split("f")[0]]
-            : segment.match(/insertions/) ? [1, segment.split("i")[0]]
-            : segment.match(/deletion/) ? [2, segment.split("d")[0]]
+            const segmentNumber = segment.match(/file changed/) ? [0, segment?.split("f")?.[0]]
+            : segment.match(/insertions/) ? [1, segment?.split("i")?.[0]]
+            : segment.match(/deletion/) ? [2, segment?.split("d")?.[0]]
             : undefined;
             if(segmentNumber === undefined) return;
-            else fileChanges[segmentNumber[0]] += Number(segmentNumber[1]);
+            else fileChanges[segmentNumber?.[0]] += Number(segmentNumber?.[1]);
           });
         }
         if(result.has(author)) result.set(author, addVector3(result.get(author), fileChanges));
